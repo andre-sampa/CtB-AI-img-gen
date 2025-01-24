@@ -8,7 +8,7 @@ import ipywidgets as widgets
 from datetime import datetime
 
 # Retrieve the Hugging Face token from Colab secrets
-api_token = userdata.get("HF_TOKEN")
+api_token = os.environ.get("HF_CTB_TOKEN")
 
 # List of models with aliases
 models = [
