@@ -138,7 +138,7 @@ with gr.Blocks() as demo:
         # width_input = gr.Number(value=640, label="Width")
         # num_inference_steps_input = gr.Slider(minimum=10, maximum=100, value=20, label="Inference Steps")
         # guidance_scale_input = gr.Slider(minimum=1.0, maximum=20.0, value=2.0, step=0.5, label="Guidance Scale")
-        # seed_input = gr.Number(value=-1, label="Seed (-1 for random)")
+        seed_input = gr.Number(value=-1, label="Seed (-1 for random)")
     with gr.Row():
         generate_button = gr.Button("Generate Image")
     with gr.Row():
