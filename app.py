@@ -17,7 +17,7 @@ else:
 # List of models with aliases
 models = [
     {"alias": "FLUX.1-dev", "name": "black-forest-labs/FLUX.1-dev"},
-    #{"alias": "Stable Diffusion 3.5 turbo", "name": "stabilityai/stable-diffusion-3.5-large-turbo"},
+    {"alias": "Stable Diffusion 3.5 turbo", "name": "stabilityai/stable-diffusion-3.5-large-turbo"},
     {"alias": "Midjourney", "name": "strangerzonehf/Flux-Midjourney-Mix2-LoRA"}
 ]
 
