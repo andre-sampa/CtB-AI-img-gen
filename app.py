@@ -1,4 +1,3 @@
-pip install diffusers transformers torch
 
 import os
 import random
