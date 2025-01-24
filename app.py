@@ -1,4 +1,4 @@
-!pip install diffusers transformers torch
+pip install diffusers transformers torch
 
 import os
 import random
