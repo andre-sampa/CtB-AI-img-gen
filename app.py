@@ -132,13 +132,13 @@ with gr.Blocks() as demo:
         prompt_dropdown = gr.Dropdown(choices=[p["alias"] for p in prompts], label="Select Prompt", value=prompts[0]["alias"])
         team_dropdown = gr.Dropdown(choices=["Red", "Blue"], label="Select Team", value="Red")
         model_dropdown = gr.Dropdown(choices=[m["alias"] for m in models], label="Select Model", value=models[0]["alias"])
-    with gr.Row():
+    #with gr.Row():
         # Commented-out dialog boxes (can be re-enabled later)
         # height_input = gr.Number(value=360, label="Height")
         # width_input = gr.Number(value=640, label="Width")
         # num_inference_steps_input = gr.Slider(minimum=10, maximum=100, value=20, label="Inference Steps")
         # guidance_scale_input = gr.Slider(minimum=1.0, maximum=20.0, value=2.0, step=0.5, label="Guidance Scale")
-        seed_input = gr.Number(value=-1, label="Seed (-1 for random)")
+        # seed_input = gr.Number(value=-1, label="Seed (-1 for random)")
     with gr.Row():
         generate_button = gr.Button("Generate Image")
     with gr.Row():
