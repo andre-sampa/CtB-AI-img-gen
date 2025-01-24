@@ -1,3 +1,5 @@
+!pip install diffusers transformers torch
+
 import os
 import random
 from huggingface_hub import InferenceClient
