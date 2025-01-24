@@ -6,11 +6,11 @@ import gradio as gr
 from datetime import datetime
 
 # Retrieve the Hugging Face token from environment variables
-api_token = os.getenv("HF_TOKEN")
+api_token = os.getenv("HF_CTB_TOKEN")
 
 # Debugging: Check if the Hugging Face token is available
 if not api_token:
-    print("ERROR: Hugging Face token (HF_TOKEN) is missing. Please set it as an environment variable.")
+    print("ERROR: Hugging Face token (HF_CTB_TOKEN) is missing. Please set it as an environment variable.")
 else:
     print("Hugging Face token loaded successfully.")
 
@@ -73,7 +73,7 @@ print("Model Options:", [m["alias"] for m in models])
 def generate_image(prompt_alias, team, model_alias, height, width, num_inference_steps, guidance_scale, seed):
     # Debugging: Check if the token is available
     if not api_token:
-        return None, "ERROR: Hugging Face token (HF_TOKEN) is missing. Please set it as an environment variable."
+        return None, "ERROR: Hugging Face token (HF_CTB_TOKEN) is missing. Please set it as an environment variable."
 
     # Find the selected prompt and model
     try:
