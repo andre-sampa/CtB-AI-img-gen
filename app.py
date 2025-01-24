@@ -5,8 +5,12 @@ from PIL import Image
 import gradio as gr
 from datetime import datetime
 
-# Retrieve the Hugging Face token from environment variables
-api_token = os.getenv("HF_CTB_TOKEN")
+# Debugging: Check if the Hugging Face token is available
+api_token = os.getenv("HF_TOKEN")
+if not api_token:
+    print("ERROR: Hugging Face token (HF_TOKEN) is missing. Please set it as an environment variable.")
+else:
+    print("Hugging Face token loaded successfully.")
 
 # List of models with aliases
 models = [
@@ -61,6 +65,10 @@ prompts = [
 
 # Function to generate images
 def generate_image(prompt_alias, team, model_alias, height, width, num_inference_steps, guidance_scale, seed):
+    # Debugging: Check if the token is available
+    if not api_token:
+        return None, "ERROR: Hugging Face token (HF_TOKEN) is missing. Please set it as an environment variable."
+
     # Find the selected prompt and model
     prompt = next(p for p in prompts if p["alias"] == prompt_alias)["text"]
     model_name = next(m for m in models if m["alias"] == model_alias)["name"]
@@ -82,21 +90,24 @@ def generate_image(prompt_alias, team, model_alias, height, width, num_inference
     client = InferenceClient(model_name, token=api_token)
 
     # Generate the image
-    image = client.text_to_image(
-        prompt,
-        guidance_scale=guidance_scale,
-        num_inference_steps=num_inference_steps,
-        width=width,
-        height=height,
-        seed=seed
-    )
+    try:
+        image = client.text_to_image(
+            prompt,
+            guidance_scale=guidance_scale,
+            num_inference_steps=num_inference_steps,
+            width=width,
+            height=height,
+            seed=seed
+        )
+    except Exception as e:
+        return None, f"ERROR: Failed to generate image. Details: {e}"
 
     # Save the image with a timestamped filename
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_filename = f"{timestamp}_{model_alias.replace(' ', '_').lower()}_{prompt_alias.replace(' ', '_').lower()}_{team.lower()}.png"
     image.save(output_filename)
 
-    return output_filename
+    return output_filename, "Image generated successfully!"
 
 # Gradio Interface
 with gr.Blocks() as demo:
@@ -115,20 +126,31 @@ with gr.Blocks() as demo:
         generate_button = gr.Button("Generate Image")
     with gr.Row():
         output_image = gr.Image(label="Generated Image")
+    with gr.Row():
+        status_text = gr.Textbox(label="Status", placeholder="Waiting for input...", interactive=False)
 
     # Function to handle button click
     def generate(prompt_alias, team, model_alias, height, width, num_inference_steps, guidance_scale, seed):
         try:
-            image_path = generate_image(prompt_alias, team, model_alias, height, width, num_inference_steps, guidance_scale, seed)
-            return image_path
+            # Update status to indicate rendering
+            status_text.update("Rendering image... Please wait.")
+            yield None, "Rendering image... Please wait."  # Yield to update the UI
+
+            # Generate the image
+            image_path, message = generate_image(prompt_alias, team, model_alias, height, width, num_inference_steps, guidance_scale, seed)
+
+            # Update status and return the image
+            status_text.update(message)
+            yield image_path, message
         except Exception as e:
-            return f"An error occurred: {e}"
+            status_text.update(f"An error occurred: {e}")
+            yield None, f"An error occurred: {e}"
 
     # Connect the button to the function
     generate_button.click(
         generate,
         inputs=[prompt_dropdown, team_dropdown, model_dropdown, height_input, width_input, num_inference_steps_input, guidance_scale_input, seed_input],
-        outputs=output_image
+        outputs=[output_image, status_text]
     )
 
 # Launch the Gradio app
