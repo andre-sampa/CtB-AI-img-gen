@@ -17,7 +17,7 @@ else:
 # List of models with aliases
 models = [
     {"alias": "FLUX.1-dev", "name": "black-forest-labs/FLUX.1-dev"},
-    {"alias": "Stable Diffusion 3.5 turbo", "name": "stabilityai/stable-diffusion-3.5-large-turbo"},
+    #{"alias": "Stable Diffusion 3.5 turbo", "name": "stabilityai/stable-diffusion-3.5-large-turbo"},
     {"alias": "Midjourney", "name": "strangerzonehf/Flux-Midjourney-Mix2-LoRA"}
 ]
 
@@ -131,7 +131,7 @@ with gr.Blocks() as demo:
         # Set default values for dropdowns
         prompt_dropdown = gr.Dropdown(choices=[p["alias"] for p in prompts], label="Select Prompt", value=prompts[0]["alias"])
         team_dropdown = gr.Dropdown(choices=["Red", "Blue"], label="Select Team", value="Red")
-        model_dropdown = gr.Dropdown(choices=[m["alias"] for m in models], label="Select Model", value=models[0]["alias"])
+        #model_dropdown = gr.Dropdown(choices=[m["alias"] for m in models], label="Select Model", value=models[0]["alias"])
     #with gr.Row():
         # Commented-out dialog boxes (can be re-enabled later)
         # height_input = gr.Number(value=360, label="Height")
