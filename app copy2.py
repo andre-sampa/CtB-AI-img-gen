@@ -17,6 +17,7 @@ else:
 # List of models with aliases
 models = [
     {"alias": "FLUX.1-dev", "name": "black-forest-labs/FLUX.1-dev"},
+    #{"alias": "Stable Diffusion 3.5 turbo", "name": "stabilityai/stable-diffusion-3.5-large-turbo"},
     {"alias": "Midjourney", "name": "strangerzonehf/Flux-Midjourney-Mix2-LoRA"}
 ]
 
@@ -69,7 +70,7 @@ print("Prompt Options:", [p["alias"] for p in prompts])
 print("Model Options:", [m["alias"] for m in models])
 
 # Function to generate images
-def generate_image(prompt_alias, team, model_alias, custom_prompt, height, width, num_inference_steps, guidance_scale, seed):
+def generate_image(prompt_alias, team, model_alias, height, width, num_inference_steps, guidance_scale, seed):
     # Debugging: Check if the token is available
     if not api_token:
         return None, "ERROR: Hugging Face token (HF_CTB_TOKEN) is missing. Please set it as an environment variable."
@@ -89,10 +90,6 @@ def generate_image(prompt_alias, team, model_alias, custom_prompt, height, width
         prompt += " The winning army is dressed in red armor and banners."
     elif team.lower() == "blue":
         prompt += " The winning army is dressed in blue armor and banners."
-
-    # Append the custom prompt (if provided)
-    if custom_prompt and len(custom_prompt.strip()) > 0:
-        prompt += " " + custom_prompt.strip()
 
     # Randomize the seed if needed
     if seed == -1:
@@ -135,9 +132,6 @@ with gr.Blocks() as demo:
         prompt_dropdown = gr.Dropdown(choices=[p["alias"] for p in prompts], label="Select Prompt", value=prompts[0]["alias"])
         team_dropdown = gr.Dropdown(choices=["Red", "Blue"], label="Select Team", value="Red")
         model_dropdown = gr.Dropdown(choices=[m["alias"] for m in models], label="Select Model", value=models[0]["alias"])
-    with gr.Row():
-        # Add a text box for custom user input (max 200 characters)
-        custom_prompt_input = gr.Textbox(label="Custom Prompt (Optional)", placeholder="Enter additional details (max 200 chars)...", max_lines=1, max_length=200)
     #with gr.Row():
         # Commented-out dialog boxes (can be re-enabled later)
         # height_input = gr.Number(value=360, label="Height")
@@ -153,10 +147,10 @@ with gr.Blocks() as demo:
         status_text = gr.Textbox(label="Status", placeholder="Waiting for input...", interactive=False)
 
     # Function to handle button click
-    def generate(prompt_alias, team, model_alias, custom_prompt, height=360, width=640, num_inference_steps=20, guidance_scale=2.0, seed=-1):
+    def generate(prompt_alias, team, model_alias, height=360, width=640, num_inference_steps=20, guidance_scale=2.0, seed=-1):
         try:
             # Generate the image
-            image_path, message = generate_image(prompt_alias, team, model_alias, custom_prompt, height, width, num_inference_steps, guidance_scale, seed)
+            image_path, message = generate_image(prompt_alias, team, model_alias, height, width, num_inference_steps, guidance_scale, seed)
             return image_path, message
         except Exception as e:
             return None, f"An error occurred: {e}"
@@ -164,9 +158,9 @@ with gr.Blocks() as demo:
     # Connect the button to the function
     generate_button.click(
         generate,
-        inputs=[prompt_dropdown, team_dropdown, model_dropdown, custom_prompt_input],  # Added custom_prompt_input
+        inputs=[prompt_dropdown, team_dropdown, model_dropdown],  # Removed commented-out inputs
         outputs=[output_image, status_text]
     )
 
-# Launch the Gradio app
+# Launch the Gradio app  p
 demo.launch()
