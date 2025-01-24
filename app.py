@@ -1,154 +1,245 @@
-import gradio as gr
-import numpy as np
+import os
 import random
+from huggingface_hub import InferenceClient
+from PIL import Image
+from google.colab import userdata
+from IPython.display import display, clear_output
+import ipywidgets as widgets
+from datetime import datetime
 
-# import spaces #[uncomment to use ZeroGPU]
-from diffusers import DiffusionPipeline
-import torch
+# Retrieve the Hugging Face token from Colab secrets
+api_token = userdata.get("HF_TOKEN")
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model_repo_id = "stabilityai/sdxl-turbo"  # Replace to the model you would like to use
-
-if torch.cuda.is_available():
-    torch_dtype = torch.float16
-else:
-    torch_dtype = torch.float32
-
-pipe = DiffusionPipeline.from_pretrained(model_repo_id, torch_dtype=torch_dtype)
-pipe = pipe.to(device)
-
-MAX_SEED = np.iinfo(np.int32).max
-MAX_IMAGE_SIZE = 1024
-
-
-# @spaces.GPU #[uncomment to use ZeroGPU]
-def infer(
-    prompt,
-    negative_prompt,
-    seed,
-    randomize_seed,
-    width,
-    height,
-    guidance_scale,
-    num_inference_steps,
-    progress=gr.Progress(track_tqdm=True),
-):
-    if randomize_seed:
-        seed = random.randint(0, MAX_SEED)
-
-    generator = torch.Generator().manual_seed(seed)
-
-    image = pipe(
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        guidance_scale=guidance_scale,
-        num_inference_steps=num_inference_steps,
-        width=width,
-        height=height,
-        generator=generator,
-    ).images[0]
-
-    return image, seed
-
-
-examples = [
-    "Astronaut in a jungle, cold color palette, muted colors, detailed, 8k",
-    "An astronaut riding a green horse",
-    "A delicious ceviche cheesecake slice",
+# List of models with aliases
+models = [
+    {
+        "alias": "FLUX.1-dev",
+        "name": "black-forest-labs/FLUX.1-dev"
+    },
+    {
+        "alias": "Stable Diffusion 3.5 turbo",
+        "name": "stabilityai/stable-diffusion-3.5-large-turbo"
+    },
+    {
+        "alias": "Midjourney",
+        "name": "strangerzonehf/Flux-Midjourney-Mix2-LoRA"
+    }
 ]
 
-css = """
-#col-container {
-    margin: 0 auto;
-    max-width: 640px;
-}
-"""
+# Initialize the InferenceClient with the default model
+client = InferenceClient(models[0]["name"], token=api_token)
 
-with gr.Blocks(css=css) as demo:
-    with gr.Column(elem_id="col-container"):
-        gr.Markdown(" # Text-to-Image Gradio Template")
+# List of 10 prompts with intense combat
+prompts = [
+    {
+        "alias": "Castle Siege",
+        "text": "A medieval castle under siege, with archers firing arrows from the walls, knights charging on horses, and catapults launching fireballs. The enemy army, dressed in {enemy_color} armor, is fiercely attacking the castle, with soldiers scaling ladders and clashing swords with the defenders. Arrows fly through the air, explosions light up the battlefield, and injured knights lie on the ground. Fire engulfs parts of the castle, and the air is thick with smoke and chaos. Unreal Engine render style, photorealistic, realistic fantasy style."
+    },
+    {
+        "alias": "Forest Battle",
+        "text": "A fierce battle between two armies in a dense forest, with knights wielding swords and axes, horses rearing, and the ground covered in mud and blood. The enemy army, dressed in {enemy_color} armor, is locked in brutal combat, with soldiers fighting hand-to-hand amidst the trees. Arrows whiz past, and the sounds of clashing steel echo through the forest. Injured soldiers scream in pain, and the forest is littered with broken weapons and shields. Unreal Engine render style, photorealistic, realistic fantasy style."
+    },
+    {
+        "alias": "Boiling Oil Defense",
+        "text": "A dramatic moment in a medieval siege, with a knight leading a charge against a castle gate, while defenders pour boiling oil from the walls. The enemy army, dressed in {enemy_color} armor, is relentlessly attacking, with soldiers screaming as they are hit by the oil. Knights clash swords at the gate, and arrows rain down from above. The ground is littered with the bodies of fallen soldiers, and the air is filled with the smell of burning flesh. Unreal Engine render style, photorealistic, realistic fantasy style."
+    },
+    {
+        "alias": "Burning Castle Battle",
+        "text": "A chaotic battlefield with knights on horseback clashing with infantry, archers firing volleys of arrows, and a castle burning in the background. The enemy army, dressed in {enemy_color} armor, is fighting fiercely, with soldiers engaging in brutal melee combat. Flames light up the scene as knights charge through the chaos. Injured soldiers crawl on the ground, and the air is filled with the sounds of clashing steel and screams of pain. Unreal Engine render style, photorealistic, realistic fantasy style."
+    },
+    {
+        "alias": "Heroic Last Stand",
+        "text": "A heroic last stand of a small group of knights defending a bridge against a massive army, with arrows flying and swords clashing. The enemy army, dressed in {enemy_color} armor, is overwhelming the defenders, but the knights fight bravely, cutting down enemy soldiers as they advance. The bridge is littered with bodies and broken weapons. Blood stains the ground, and the air is thick with the sounds of battle. Unreal Engine render style, photorealistic, realistic fantasy style."
+    },
+    {
+        "alias": "Siege Tower Attack",
+        "text": "A medieval siege tower approaching a castle wall, with knights scaling ladders and defenders throwing rocks and shooting arrows. The enemy army, dressed in {enemy_color} armor, is fighting desperately to breach the walls, with soldiers clashing swords on the battlements. Arrows fly in all directions, and the siege tower is engulfed in flames. Injured soldiers fall from the ladders, and the ground is littered with the bodies of the fallen. Unreal Engine render style, photorealistic, realistic fantasy style."
+    },
+    {
+        "alias": "Knight Duel",
+        "text": "A dramatic duel between two knights in the middle of a battlefield, with their armies watching and the castle in the background. The enemy army, dressed in {enemy_color} armor, is engaged in fierce combat all around, with soldiers clashing swords and firing arrows. The duelists fight with skill and determination, their blades flashing in the sunlight. Injured soldiers lie on the ground, and the air is filled with the sounds of battle. Unreal Engine render style, photorealistic, realistic fantasy style."
+    },
+    {
+        "alias": "Night Battle",
+        "text": "A night battle during a medieval siege, with torches lighting the scene, knights fighting in the shadows, and the castle walls looming in the background. The enemy army, dressed in {enemy_color} armor, is locked in brutal combat, with soldiers clashing swords and firing arrows in the dim light. Flames from burning siege equipment illuminate the chaos. Injured soldiers scream in pain, and the ground is littered with the bodies of the fallen. Unreal Engine render style, photorealistic, realistic fantasy style."
+    },
+    {
+        "alias": "Marching Army",
+        "text": "A massive army of knights and infantry marching towards a distant castle, with banners flying and the sun setting behind them. The enemy army, dressed in {enemy_color} armor, is engaging in skirmishes along the way, with soldiers clashing swords and firing arrows. The battlefield is alive with the sounds of combat and the clash of steel. Injured soldiers lie on the ground, and the air is thick with the smell of blood and smoke. Unreal Engine render style, photorealistic, realistic fantasy style."
+    },
+    {
+        "alias": "Snowy Battlefield",
+        "text": "A medieval battle in a snowy landscape, with knights in heavy armor fighting on a frozen lake, and the castle visible in the distance. The enemy army, dressed in {enemy_color} armor, is locked in fierce combat, with soldiers slipping on the ice as they clash swords. Arrows fly through the air, and the snow is stained red with blood. Injured soldiers crawl on the ground, and the air is filled with the sounds of battle. Unreal Engine render style, photorealistic, realistic fantasy style."
+    }
+]
 
-        with gr.Row():
-            prompt = gr.Text(
-                label="Prompt",
-                show_label=False,
-                max_lines=1,
-                placeholder="Enter your prompt",
-                container=False,
-            )
+# Dropdown menu for model selection
+model_dropdown = widgets.Dropdown(
+    options=[(model["alias"], model["name"]) for model in models],
+    description="Select Model:",
+    style={"description_width": "initial"}
+)
 
-            run_button = gr.Button("Run", scale=0, variant="primary")
+# Dropdown menu for prompt selection
+prompt_dropdown = widgets.Dropdown(
+    options=[(prompt["alias"], prompt["text"]) for prompt in prompts],
+    description="Select Prompt:",
+    style={"description_width": "initial"}
+)
 
-        result = gr.Image(label="Result", show_label=False)
+# Dropdown menu for team selection
+team_dropdown = widgets.Dropdown(
+    options=["Red", "Blue"],
+    description="Select Team:",
+    style={"description_width": "initial"}
+)
 
-        with gr.Accordion("Advanced Settings", open=False):
-            negative_prompt = gr.Text(
-                label="Negative prompt",
-                max_lines=1,
-                placeholder="Enter a negative prompt",
-                visible=False,
-            )
+# Input for height
+height_input = widgets.IntText(
+    value=360,
+    description="Height:",
+    style={"description_width": "initial"}
+)
 
-            seed = gr.Slider(
-                label="Seed",
-                minimum=0,
-                maximum=MAX_SEED,
-                step=1,
-                value=0,
-            )
+# Input for width
+width_input = widgets.IntText(
+    value=640,
+    description="Width:",
+    style={"description_width": "initial"}
+)
 
-            randomize_seed = gr.Checkbox(label="Randomize seed", value=True)
+# Input for number of inference steps
+num_inference_steps_input = widgets.IntSlider(
+    value=20,
+    min=10,
+    max=100,
+    step=1,
+    description="Inference Steps:",
+    style={"description_width": "initial"}
+)
 
-            with gr.Row():
-                width = gr.Slider(
-                    label="Width",
-                    minimum=256,
-                    maximum=MAX_IMAGE_SIZE,
-                    step=32,
-                    value=1024,  # Replace with defaults that work for your model
-                )
+# Input for guidance scale
+guidance_scale_input = widgets.FloatSlider(
+    value=2,
+    min=1.0,
+    max=20.0,
+    step=0.5,
+    description="Guidance Scale:",
+    style={"description_width": "initial"}
+)
 
-                height = gr.Slider(
-                    label="Height",
-                    minimum=256,
-                    maximum=MAX_IMAGE_SIZE,
-                    step=32,
-                    value=1024,  # Replace with defaults that work for your model
-                )
+# Input for seed
+seed_input = widgets.IntText(
+    value=random.randint(0, 1000000),
+    description="Seed:",
+    style={"description_width": "initial"}
+)
 
-            with gr.Row():
-                guidance_scale = gr.Slider(
-                    label="Guidance scale",
-                    minimum=0.0,
-                    maximum=10.0,
-                    step=0.1,
-                    value=0.0,  # Replace with defaults that work for your model
-                )
+# Checkbox to randomize seed
+randomize_seed_checkbox = widgets.Checkbox(
+    value=True,
+    description="Randomize Seed",
+    style={"description_width": "initial"}
+)
 
-                num_inference_steps = gr.Slider(
-                    label="Number of inference steps",
-                    minimum=1,
-                    maximum=50,
-                    step=1,
-                    value=2,  # Replace with defaults that work for your model
-                )
+# Button to generate image
+generate_button = widgets.Button(
+    description="Generate Image",
+    button_style="success"
+)
 
-        gr.Examples(examples=examples, inputs=[prompt])
-    gr.on(
-        triggers=[run_button.click, prompt.submit],
-        fn=infer,
-        inputs=[
+# Output area to display the image
+output = widgets.Output()
+
+# Function to generate images based on the selected prompt, team, and model
+def generate_image(prompt, team, model_name, height, width, num_inference_steps, guidance_scale, seed):
+    # Determine the enemy color
+    enemy_color = "blue" if team.lower() == "red" else "red"
+    
+    # Replace {enemy_color} in the prompt
+    prompt = prompt.format(enemy_color=enemy_color)
+    
+    if team.lower() == "red":
+        prompt += " The winning army is dressed in red armor and banners."
+    elif team.lower() == "blue":
+        prompt += " The winning army is dressed in blue armor and banners."
+    else:
+        return "Invalid team selection. Please choose 'Red' or 'Blue'."
+
+    try:
+        # Randomize the seed if the checkbox is checked
+        if randomize_seed_checkbox.value:
+            seed = random.randint(0, 1000000)
+            seed_input.value = seed  # Update the seed input box
+
+        print(f"Using seed: {seed}")
+
+        # Debug: Indicate that the image is being generated
+        print("Generating image... Please wait.")
+
+        # Initialize the InferenceClient with the selected model
+        client = InferenceClient(model_name, token=api_token)
+
+        # Generate the image using the Inference API with parameters
+        image = client.text_to_image(
             prompt,
-            negative_prompt,
-            seed,
-            randomize_seed,
-            width,
-            height,
-            guidance_scale,
-            num_inference_steps,
-        ],
-        outputs=[result, seed],
-    )
+            guidance_scale=guidance_scale,  # Guidance scale
+            num_inference_steps=num_inference_steps,  # Number of inference steps
+            width=width,  # Width
+            height=height,  # Height
+            seed=seed  # Random seed
+        )
+        return image
+    except Exception as e:
+        return f"An error occurred: {e}"
 
-if __name__ == "__main__":
-    demo.launch()
+# Function to handle button click event
+def on_generate_button_clicked(b):
+    with output:
+        clear_output(wait=True)  # Clear previous output
+        selected_prompt = prompt_dropdown.value
+        selected_team = team_dropdown.value
+        selected_model = model_dropdown.value
+        height = height_input.value
+        width = width_input.value
+        num_inference_steps = num_inference_steps_input.value
+        guidance_scale = guidance_scale_input.value
+        seed = seed_input.value
+
+        # Debug: Show selected parameters
+        print(f"Selected Model: {model_dropdown.label}")
+        print(f"Selected Prompt: {prompt_dropdown.label}")
+        print(f"Selected Team: {selected_team}")
+        print(f"Height: {height}")
+        print(f"Width: {width}")
+        print(f"Inference Steps: {num_inference_steps}")
+        print(f"Guidance Scale: {guidance_scale}")
+        print(f"Seed: {seed}")
+
+        # Generate the image
+        image = generate_image(selected_prompt, selected_team, selected_model, height, width, num_inference_steps, guidance_scale, seed)
+
+        if isinstance(image, str):
+            print(image)
+        else:
+            # Debug: Indicate that the image is being displayed and saved
+            print("Image generated successfully!")
+            print("Displaying image...")
+
+            # Display the image in the notebook
+            display(image)
+
+            # Save the image with a timestamped filename
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_filename = f"{timestamp}_{model_dropdown.label.replace(' ', '_').lower()}_{prompt_dropdown.label.replace(' ', '_').lower()}_{selected_team.lower()}.png"
+            print(f"Saving image as {output_filename}...")
+            image.save(output_filename)
+            print(f"Image saved as {output_filename}")
+
+# Attach the button click event handler
+generate_button.on_click(on_generate_button_clicked)
+
+# Display the widgets
+#display(model_dropdown, prompt_dropdown, team_dropdown, height_input, width_input, num_inference_steps_input, guidance_scale_input, seed_input, randomize_seed_checkbox, generate_button, output)
+
+display(prompt_dropdown, team_dropdown, generate_button, output)
