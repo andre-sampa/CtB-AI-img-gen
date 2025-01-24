@@ -6,11 +6,11 @@ import gradio as gr
 from datetime import datetime
 
 # Retrieve the Hugging Face token from environment variables
-api_token = os.getenv("HF_CTB_TOKEN")
+api_token = os.getenv("HF_TOKEN")
 
 # Debugging: Check if the Hugging Face token is available
 if not api_token:
-    print("ERROR: Hugging Face token (HF_CTB_TOKEN) is missing. Please set it as an environment variable.")
+    print("ERROR: Hugging Face token (HF_TOKEN) is missing. Please set it as an environment variable.")
 else:
     print("Hugging Face token loaded successfully.")
 
@@ -65,11 +65,15 @@ prompts = [
     }
 ]
 
+# Debugging: Print prompt and model options
+print("Prompt Options:", [p["alias"] for p in prompts])
+print("Model Options:", [m["alias"] for m in models])
+
 # Function to generate images
 def generate_image(prompt_alias, team, model_alias, height, width, num_inference_steps, guidance_scale, seed):
     # Debugging: Check if the token is available
     if not api_token:
-        return None, "ERROR: Hugging Face token (HF_CTB_TOKEN) is missing. Please set it as an environment variable."
+        return None, "ERROR: Hugging Face token (HF_TOKEN) is missing. Please set it as an environment variable."
 
     # Find the selected prompt and model
     try:
@@ -124,9 +128,10 @@ def generate_image(prompt_alias, team, model_alias, height, width, num_inference
 with gr.Blocks() as demo:
     gr.Markdown("# CtB AI Image Generator")
     with gr.Row():
-        prompt_dropdown = gr.Dropdown(choices=[p["alias"] for p in prompts], label="Select Prompt")
-        team_dropdown = gr.Dropdown(choices=["Red", "Blue"], label="Select Team")
-        model_dropdown = gr.Dropdown(choices=[m["alias"] for m in models], label="Select Model")
+        # Set default values for dropdowns
+        prompt_dropdown = gr.Dropdown(choices=[p["alias"] for p in prompts], label="Select Prompt", value=prompts[0]["alias"])
+        team_dropdown = gr.Dropdown(choices=["Red", "Blue"], label="Select Team", value="Red")
+        model_dropdown = gr.Dropdown(choices=[m["alias"] for m in models], label="Select Model", value=models[0]["alias"])
     with gr.Row():
         height_input = gr.Number(value=360, label="Height")
         width_input = gr.Number(value=640, label="Width")
