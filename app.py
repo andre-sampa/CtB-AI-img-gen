@@ -6,7 +6,7 @@ import gradio as gr
 from datetime import datetime
 
 # Retrieve the Hugging Face token from environment variables
-api_token = os.getenv("HF_TOKEN")
+api_token = os.getenv("HF_CTB_TOKEN")
 
 # List of models with aliases
 models = [
