@@ -5,3 +5,6 @@ torch
 transformers
 xformers
 IPython
+gradio
+huggingface_hub
+Pillow
