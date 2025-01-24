@@ -1,35 +1,21 @@
-
 import os
 import random
 from huggingface_hub import InferenceClient
 from PIL import Image
-from IPython.display import display, clear_output
-import ipywidgets as widgets
+import gradio as gr
 from datetime import datetime
 
-# Retrieve the Hugging Face token from Colab secrets
-api_token = os.environ.get("HF_CTB_TOKEN")
+# Retrieve the Hugging Face token from environment variables
+api_token = os.getenv("HF_TOKEN")
 
 # List of models with aliases
 models = [
-    {
-        "alias": "FLUX.1-dev",
-        "name": "black-forest-labs/FLUX.1-dev"
-    },
-    {
-        "alias": "Stable Diffusion 3.5 turbo",
-        "name": "stabilityai/stable-diffusion-3.5-large-turbo"
-    },
-    {
-        "alias": "Midjourney",
-        "name": "strangerzonehf/Flux-Midjourney-Mix2-LoRA"
-    }
+    {"alias": "FLUX.1-dev", "name": "black-forest-labs/FLUX.1-dev"},
+    {"alias": "Stable Diffusion 3.5 turbo", "name": "stabilityai/stable-diffusion-3.5-large-turbo"},
+    {"alias": "Midjourney", "name": "strangerzonehf/Flux-Midjourney-Mix2-LoRA"}
 ]
 
-# Initialize the InferenceClient with the default model
-client = InferenceClient(models[0]["name"], token=api_token)
-
-# List of 10 prompts with intense combat
+# List of prompts with intense combat
 prompts = [
     {
         "alias": "Castle Siege",
@@ -73,173 +59,77 @@ prompts = [
     }
 ]
 
-# Dropdown menu for model selection
-model_dropdown = widgets.Dropdown(
-    options=[(model["alias"], model["name"]) for model in models],
-    description="Select Model:",
-    style={"description_width": "initial"}
-)
+# Function to generate images
+def generate_image(prompt_alias, team, model_alias, height, width, num_inference_steps, guidance_scale, seed):
+    # Find the selected prompt and model
+    prompt = next(p for p in prompts if p["alias"] == prompt_alias)["text"]
+    model_name = next(m for m in models if m["alias"] == model_alias)["name"]
 
-# Dropdown menu for prompt selection
-prompt_dropdown = widgets.Dropdown(
-    options=[(prompt["alias"], prompt["text"]) for prompt in prompts],
-    description="Select Prompt:",
-    style={"description_width": "initial"}
-)
-
-# Dropdown menu for team selection
-team_dropdown = widgets.Dropdown(
-    options=["Red", "Blue"],
-    description="Select Team:",
-    style={"description_width": "initial"}
-)
-
-# Input for height
-height_input = widgets.IntText(
-    value=360,
-    description="Height:",
-    style={"description_width": "initial"}
-)
-
-# Input for width
-width_input = widgets.IntText(
-    value=640,
-    description="Width:",
-    style={"description_width": "initial"}
-)
-
-# Input for number of inference steps
-num_inference_steps_input = widgets.IntSlider(
-    value=20,
-    min=10,
-    max=100,
-    step=1,
-    description="Inference Steps:",
-    style={"description_width": "initial"}
-)
-
-# Input for guidance scale
-guidance_scale_input = widgets.FloatSlider(
-    value=2,
-    min=1.0,
-    max=20.0,
-    step=0.5,
-    description="Guidance Scale:",
-    style={"description_width": "initial"}
-)
-
-# Input for seed
-seed_input = widgets.IntText(
-    value=random.randint(0, 1000000),
-    description="Seed:",
-    style={"description_width": "initial"}
-)
-
-# Checkbox to randomize seed
-randomize_seed_checkbox = widgets.Checkbox(
-    value=True,
-    description="Randomize Seed",
-    style={"description_width": "initial"}
-)
-
-# Button to generate image
-generate_button = widgets.Button(
-    description="Generate Image",
-    button_style="success"
-)
-
-# Output area to display the image
-output = widgets.Output()
-
-# Function to generate images based on the selected prompt, team, and model
-def generate_image(prompt, team, model_name, height, width, num_inference_steps, guidance_scale, seed):
     # Determine the enemy color
     enemy_color = "blue" if team.lower() == "red" else "red"
-    
-    # Replace {enemy_color} in the prompt
     prompt = prompt.format(enemy_color=enemy_color)
-    
+
     if team.lower() == "red":
         prompt += " The winning army is dressed in red armor and banners."
     elif team.lower() == "blue":
         prompt += " The winning army is dressed in blue armor and banners."
-    else:
-        return "Invalid team selection. Please choose 'Red' or 'Blue'."
 
-    try:
-        # Randomize the seed if the checkbox is checked
-        if randomize_seed_checkbox.value:
-            seed = random.randint(0, 1000000)
-            seed_input.value = seed  # Update the seed input box
+    # Randomize the seed if needed
+    if seed == -1:
+        seed = random.randint(0, 1000000)
 
-        print(f"Using seed: {seed}")
+    # Initialize the InferenceClient
+    client = InferenceClient(model_name, token=api_token)
 
-        # Debug: Indicate that the image is being generated
-        print("Generating image... Please wait.")
+    # Generate the image
+    image = client.text_to_image(
+        prompt,
+        guidance_scale=guidance_scale,
+        num_inference_steps=num_inference_steps,
+        width=width,
+        height=height,
+        seed=seed
+    )
 
-        # Initialize the InferenceClient with the selected model
-        client = InferenceClient(model_name, token=api_token)
+    # Save the image with a timestamped filename
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_filename = f"{timestamp}_{model_alias.replace(' ', '_').lower()}_{prompt_alias.replace(' ', '_').lower()}_{team.lower()}.png"
+    image.save(output_filename)
 
-        # Generate the image using the Inference API with parameters
-        image = client.text_to_image(
-            prompt,
-            guidance_scale=guidance_scale,  # Guidance scale
-            num_inference_steps=num_inference_steps,  # Number of inference steps
-            width=width,  # Width
-            height=height,  # Height
-            seed=seed  # Random seed
-        )
-        return image
-    except Exception as e:
-        return f"An error occurred: {e}"
+    return output_filename
 
-# Function to handle button click event
-def on_generate_button_clicked(b):
-    with output:
-        clear_output(wait=True)  # Clear previous output
-        selected_prompt = prompt_dropdown.value
-        selected_team = team_dropdown.value
-        selected_model = model_dropdown.value
-        height = height_input.value
-        width = width_input.value
-        num_inference_steps = num_inference_steps_input.value
-        guidance_scale = guidance_scale_input.value
-        seed = seed_input.value
+# Gradio Interface
+with gr.Blocks() as demo:
+    gr.Markdown("# CtB AI Image Generator")
+    with gr.Row():
+        prompt_dropdown = gr.Dropdown(choices=[p["alias"] for p in prompts], label="Select Prompt")
+        team_dropdown = gr.Dropdown(choices=["Red", "Blue"], label="Select Team")
+        model_dropdown = gr.Dropdown(choices=[m["alias"] for m in models], label="Select Model")
+    with gr.Row():
+        height_input = gr.Number(value=360, label="Height")
+        width_input = gr.Number(value=640, label="Width")
+        num_inference_steps_input = gr.Slider(minimum=10, maximum=100, value=20, label="Inference Steps")
+        guidance_scale_input = gr.Slider(minimum=1.0, maximum=20.0, value=2.0, step=0.5, label="Guidance Scale")
+        seed_input = gr.Number(value=-1, label="Seed (-1 for random)")
+    with gr.Row():
+        generate_button = gr.Button("Generate Image")
+    with gr.Row():
+        output_image = gr.Image(label="Generated Image")
 
-        # Debug: Show selected parameters
-        print(f"Selected Model: {model_dropdown.label}")
-        print(f"Selected Prompt: {prompt_dropdown.label}")
-        print(f"Selected Team: {selected_team}")
-        print(f"Height: {height}")
-        print(f"Width: {width}")
-        print(f"Inference Steps: {num_inference_steps}")
-        print(f"Guidance Scale: {guidance_scale}")
-        print(f"Seed: {seed}")
+    # Function to handle button click
+    def generate(prompt_alias, team, model_alias, height, width, num_inference_steps, guidance_scale, seed):
+        try:
+            image_path = generate_image(prompt_alias, team, model_alias, height, width, num_inference_steps, guidance_scale, seed)
+            return image_path
+        except Exception as e:
+            return f"An error occurred: {e}"
 
-        # Generate the image
-        image = generate_image(selected_prompt, selected_team, selected_model, height, width, num_inference_steps, guidance_scale, seed)
+    # Connect the button to the function
+    generate_button.click(
+        generate,
+        inputs=[prompt_dropdown, team_dropdown, model_dropdown, height_input, width_input, num_inference_steps_input, guidance_scale_input, seed_input],
+        outputs=output_image
+    )
 
-        if isinstance(image, str):
-            print(image)
-        else:
-            # Debug: Indicate that the image is being displayed and saved
-            print("Image generated successfully!")
-            print("Displaying image...")
-
-            # Display the image in the notebook
-            display(image)
-
-            # Save the image with a timestamped filename
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_filename = f"{timestamp}_{model_dropdown.label.replace(' ', '_').lower()}_{prompt_dropdown.label.replace(' ', '_').lower()}_{selected_team.lower()}.png"
-            print(f"Saving image as {output_filename}...")
-            image.save(output_filename)
-            print(f"Image saved as {output_filename}")
-
-# Attach the button click event handler
-generate_button.on_click(on_generate_button_clicked)
-
-# Display the widgets
-#display(model_dropdown, prompt_dropdown, team_dropdown, height_input, width_input, num_inference_steps_input, guidance_scale_input, seed_input, randomize_seed_checkbox, generate_button, output)
-
-display(prompt_dropdown, team_dropdown, generate_button, output)
+# Launch the Gradio app
+demo.launch()
