@@ -2,7 +2,6 @@ import os
 import random
 from huggingface_hub import InferenceClient
 from PIL import Image
-from google.colab import userdata
 from IPython.display import display, clear_output
 import ipywidgets as widgets
 from datetime import datetime
