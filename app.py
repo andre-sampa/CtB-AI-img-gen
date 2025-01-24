@@ -162,5 +162,5 @@ with gr.Blocks() as demo:
         outputs=[output_image, status_text]
     )
 
-# Launch the Gradio app
+# Launch the Gradio app  p
 demo.launch()
