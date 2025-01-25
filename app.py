@@ -10,6 +10,7 @@ if src_path not in sys.path:
 
 # Import gradio_interface
 from gradio_interface import demo
+from config.config import api_token
 
 
 if __name__ == "__main__":
