@@ -22,7 +22,7 @@ def generate_image(prompt, team, model_name, height, width, num_inference_steps,
         randomize_seed (bool): Whether to randomize the seed.
 
     Returns:
-        tuple: A tuple containing the generated image (PIL.Image.Image) and a message (str).
+        PIL.Image.Image or str: The generated image or an error message.
     """
     # Determine the enemy color
     enemy_color = "blue" if team.lower() == "red" else "red"
@@ -36,7 +36,7 @@ def generate_image(prompt, team, model_name, height, width, num_inference_steps,
     elif team.lower() == "blue":
         prompt += " The winning army is dressed in blue armor and banners."
     else:
-        return None, "Invalid team selection. Please choose 'Red' or 'Blue'."
+        return "Invalid team selection. Please choose 'Red' or 'Blue'."
 
     # Append the custom prompt if provided
     if custom_prompt.strip():
@@ -64,9 +64,9 @@ def generate_image(prompt, team, model_name, height, width, num_inference_steps,
             height=height,  # Height
             seed=seed  # Random seed
         )
-        return image, "Image generated successfully."
+        return image
     except Exception as e:
-        return None, f"An error occurred: {e}"
+        return f"An error occurred: {e}"
 
 def save_image(image, model_label, prompt_label, team):
     """
