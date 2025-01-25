@@ -1,6 +1,7 @@
 # gradio_interface.py (HuggingFace Spaces)
 import gradio as gr
 from config.config import prompts, models  # Direct import
+from src.img_gen import generate
 
 # Gradio Interface
 with gr.Blocks() as demo:
