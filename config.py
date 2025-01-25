@@ -4,12 +4,12 @@ import os
 ##
 
 # Retrieve the Hugging Face token
-try:
+#try:
     # Try to get the token from Colab secrets
-    api_token = userdata.get("HF_CTB_TOKEN")
-except ImportError:
+#    api_token = userdata.get("HF_CTB_TOKEN")
+#except ImportError:
     # Fall back to environment variable (for local execution)
-    api_token = os.getenv("HF_CTB_TOKEN")
+api_token = os.getenv("HF_CTB_TOKEN")
 
 # Debugging: Check if the Hugging Face token is available
 if not api_token:
