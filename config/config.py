@@ -1,6 +1,6 @@
 # config.py
 import os
-from src.prompts import prompts  # Import prompts from prompts.py
+from config.prompts import prompts  # Import prompts from prompts.py
 from config.models import models
 
 # Retrieve the Hugging Face token
