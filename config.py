@@ -1,7 +1,6 @@
 # config.py
 import os
-#from google.colab import userdata  # Only for Colab
-##
+from prompts import prompts  # Import prompts from prompts.py
 
 # Retrieve the Hugging Face token
 #try:
