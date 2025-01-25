@@ -1,9 +1,16 @@
-# img_gen_logic.py
+# img_gen.py
 import random
 from huggingface_hub import InferenceClient
-from PIL import Image
 from datetime import datetime
 from config.config import api_token, models, prompts  # Direct import
+
+def generate(prompt_alias, team, model_alias, custom_prompt, height=360, width=640, num_inference_steps=20, guidance_scale=2.0, seed=-1):
+    try:
+        # Generate the image
+        image_path, message = generate_image(prompt_alias, team, model_alias, custom_prompt, height, width, num_inference_steps, guidance_scale, seed)
+        return image_path, message
+    except Exception as e:
+        return None, f"An error occurred: {e}"
 
 
 def generate_image(prompt_alias, team, model_alias, custom_prompt, height=360, width=640, num_inference_steps=20, guidance_scale=2.0, seed=-1):
