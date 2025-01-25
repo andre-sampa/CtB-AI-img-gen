@@ -1,6 +1,6 @@
 # gradio_interface.py (HuggingFace Spaces)
 import gradio as gr
-from img_gen_logic import generate_image  # Direct import
+from src.img_gen_logic import generate_image  # Direct import
 from config.config import prompts, models  # Direct import
 
 def generate(prompt_alias, team, model_alias, custom_prompt, height=360, width=640, num_inference_steps=20, guidance_scale=2.0, seed=-1):

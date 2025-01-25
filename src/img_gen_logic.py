@@ -3,7 +3,7 @@ import random
 from huggingface_hub import InferenceClient
 from PIL import Image
 from datetime import datetime
-from config import api_token, models, prompts  # Direct import
+from config.config import api_token, models, prompts  # Direct import
 
 
 def generate_image(prompt_alias, team, model_alias, custom_prompt, height=360, width=640, num_inference_steps=20, guidance_scale=2.0, seed=-1):
