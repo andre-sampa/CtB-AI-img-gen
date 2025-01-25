@@ -1,9 +1,11 @@
-# src/img_gen_logic.py
+# img_gen_logic.py
 import random
 from huggingface_hub import InferenceClient
 from PIL import Image
 from datetime import datetime
 from config import api_token, models, prompts  # Direct import
+from prompts import prompts  # Import prompts from prompts.py
+
 
 def generate_image(prompt_alias, team, model_alias, custom_prompt, height=360, width=640, num_inference_steps=20, guidance_scale=2.0, seed=-1):
     # Debugging: Check if the token is available
