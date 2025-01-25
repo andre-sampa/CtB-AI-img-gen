@@ -1,6 +1,6 @@
 ---
-title: Ctb
-emoji: 🖼
+title: CtB-AI-img-gen-1.0
+emoji: 🖼⚔️
 colorFrom: purple
 colorTo: red
 sdk: gradio
