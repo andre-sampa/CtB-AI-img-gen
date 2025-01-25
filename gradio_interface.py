@@ -1,4 +1,4 @@
-# src/gradio_interface.py
+# gradio_interface.py
 import gradio as gr
 from img_gen_logic import generate_image  # Direct import
 from config import prompts, models  # Direct import
