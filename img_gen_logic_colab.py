@@ -4,7 +4,6 @@ from PIL import Image
 import random
 from datetime import datetime
 
-# Function to generate images based on the selected prompt, team, and model
 def generate_image(prompt, team, model_name, height, width, num_inference_steps, guidance_scale, seed, custom_prompt, api_token, randomize_seed=True):
     """
     Generate an image using the Hugging Face Inference API.
@@ -23,7 +22,7 @@ def generate_image(prompt, team, model_name, height, width, num_inference_steps,
         randomize_seed (bool): Whether to randomize the seed.
 
     Returns:
-        PIL.Image.Image or str: The generated image or an error message.
+        tuple: A tuple containing the generated image (PIL.Image.Image) and a message (str).
     """
     # Determine the enemy color
     enemy_color = "blue" if team.lower() == "red" else "red"
@@ -37,7 +36,7 @@ def generate_image(prompt, team, model_name, height, width, num_inference_steps,
     elif team.lower() == "blue":
         prompt += " The winning army is dressed in blue armor and banners."
     else:
-        return "Invalid team selection. Please choose 'Red' or 'Blue'."
+        return None, "Invalid team selection. Please choose 'Red' or 'Blue'."
 
     # Append the custom prompt if provided
     if custom_prompt.strip():
@@ -65,11 +64,10 @@ def generate_image(prompt, team, model_name, height, width, num_inference_steps,
             height=height,  # Height
             seed=seed  # Random seed
         )
-        return image
+        return image, "Image generated successfully."
     except Exception as e:
-        return f"An error occurred: {e}"
+        return None, f"An error occurred: {e}"
 
-# Function to save the generated image with a timestamped filename
 def save_image(image, model_label, prompt_label, team):
     """
     Save the generated image with a timestamped filename.
