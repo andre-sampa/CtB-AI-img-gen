@@ -7,10 +7,11 @@ api_token = userdata.get("HF_CTB_TOKEN")
 
 # Debugging: Check if the Hugging Face token is available
 if not api_token:
+    print("=== Debug: Error ===")
     print("ERROR: Hugging Face token (HF_CTB_TOKEN) is missing. Please set it in Colab secrets.")
 else:
+    print("=== Debug: Success ===")
     print("Hugging Face token loaded successfully.")
-
 
 # List of models with aliases
 models = [
@@ -18,7 +19,8 @@ models = [
     {"alias": "Midjourney", "name": "strangerzonehf/Flux-Midjourney-Mix2-LoRA"}
 ]
 
-
 # Debugging: Print prompt and model options
+print("=== Debug: Available Options ===")
 print("Prompt Options:", [p["alias"] for p in prompts])
 print("Model Options:", [m["alias"] for m in models])
+print("=================================")
