@@ -1,5 +1,6 @@
 # config_colab.py
 from google.colab import userdata
+from prompts import prompts  # Import prompts from prompts.py
 
 # Retrieve the Hugging Face token from Colab secrets
 api_token = userdata.get("HF_CTB_TOKEN")
