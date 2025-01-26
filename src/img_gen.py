@@ -16,12 +16,6 @@ def generate(prompt_alias, team, model_alias, custom_prompt, height=360, width=6
 
 
 def generate_image(prompt_alias, team, model_alias, custom_prompt, height=360, width=640, num_inference_steps=20, guidance_scale=2.0, seed=-1):
-    # Debugging: Check if the token is available
-    #api_token = os.getenv("HF_CTB_TOKEN")
-
-    #if not api_token:
-        #return None, "ERROR2: Hugging Face token (HF_CTB_TOKEN) is missing. Please set it as an environment variable."
-
     # Find the selected prompt and model
     try:
         prompt = next(p for p in prompts if p["alias"] == prompt_alias)["text"]
