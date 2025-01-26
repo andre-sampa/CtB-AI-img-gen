@@ -48,6 +48,7 @@ def generate_image(prompt_alias, team, model_alias, custom_prompt, height=360, w
 
     # Initialize the InferenceClient
     try:
+        print(f"Token before initializing InferenceClient: {api_token}")
         client = InferenceClient(model_name, token=api_token)
     except Exception as e:
         return None, f"ERROR: Failed to initialize InferenceClient. Details: {e}"
