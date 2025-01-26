@@ -5,4 +5,4 @@ models = [
 ]
 
 # Debugging: Print prompt and model options
-print("Model Options:", [m["alias"] for m in models])
+#print("Model Options:", [m["alias"] for m in models])
