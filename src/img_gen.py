@@ -4,7 +4,7 @@ import os
 import random
 from huggingface_hub import InferenceClient
 from datetime import datetime
-from config.config import models, prompts  # Direct import
+from config.config import models, prompts, api_token  # Direct import
 
 def generate(prompt_alias, team, model_alias, custom_prompt, height=360, width=640, num_inference_steps=20, guidance_scale=2.0, seed=-1):
     try:
