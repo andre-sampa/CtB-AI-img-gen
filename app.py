@@ -1,5 +1,5 @@
 # app.py 
-# Import gradio_interface
+#IMPORT gradio_interface
 from src.gradio_interface import demo
 
 # Launch the Gradio app
