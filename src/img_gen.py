@@ -6,16 +6,16 @@ from huggingface_hub import InferenceClient
 from datetime import datetime
 from config.config import models, prompts, api_token  # Direct import
 
-def generate(prompt_alias, team, model_alias, custom_prompt, height=360, width=640, num_inference_steps=20, guidance_scale=2.0, seed=-1):
+def generate(prompt_alias, team_color, model_alias, custom_prompt, height=360, width=640, num_inference_steps=20, guidance_scale=2.0, seed=-1):
     try:
         # Generate the image
-        image_path, message = generate_image(prompt_alias, team, model_alias, custom_prompt, height, width, num_inference_steps, guidance_scale, seed)
+        image_path, message = generate_image(prompt_alias, team_color, model_alias, custom_prompt, height, width, num_inference_steps, guidance_scale, seed)
         return image_path, message
     except Exception as e:
         return None, f"An error occurred: {e}"
 
 
-def generate_image(prompt_alias, team, winning_team_text, model_alias, custom_prompt, height=360, width=640, num_inference_steps=20, guidance_scale=2.0, seed=-1):
+def generate_image(prompt_alias, team_color, model_alias, custom_prompt, height=360, width=640, num_inference_steps=20, guidance_scale=2.0, seed=-1):
     # Find the selected prompt and model
     try:
         prompt = next(p for p in prompts if p["alias"] == prompt_alias)["text"]
@@ -26,18 +26,18 @@ def generate_image(prompt_alias, team, winning_team_text, model_alias, custom_pr
     # Determine the enemy color
     enemy_color = "blue" if team.lower() == "red" else "red"
 
-    if team.lower() == "red":
-        winning_team_text = " The winning army is dressed in red armor and banners."
-    elif team.lower() == "blue":
-        winning_team_text = " The winning army is dressed in blue armor and banners."
+    # if team.lower() == "red":
+    #     winning_team_text = " The winning army is dressed in red armor and banners."
+    # elif team.lower() == "blue":
+    #     winning_team_text = " The winning army is dressed in blue armor and banners."
 
     # Print the original prompt and dynamic values for debugging
     print("Original Prompt:")
     print(prompt)
     print(f"Enemy Color: {enemy_color}")
-    print(f"Winning Team Text: {winning_team_text}")
+    print(f"Team Color: {team_color.lower()}")
 
-    prompt = prompt.format(enemy_color=enemy_color, winning_team_text = winning_team_text)
+    prompt = prompt.format(team_color=team_color.lower(), enemy_color=enemy_color)
 
     # Print the formatted prompt for debugging
     print("\nFormatted Prompt:")
