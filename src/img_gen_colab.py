@@ -27,16 +27,22 @@ def generate_image(prompt, team, model_name, height, width, num_inference_steps,
     # Determine the enemy color
     enemy_color = "blue" if team.lower() == "red" else "red"
 
-    # Replace {enemy_color} in the prompt
-    prompt = prompt.format(enemy_color=enemy_color)
-
-    # Add team-specific details to the prompt
     if team.lower() == "red":
-        prompt += " The winning army is dressed in red armor and banners."
+        winning_team_text = " The winning army is dressed in red armor and banners."
     elif team.lower() == "blue":
-        prompt += " The winning army is dressed in blue armor and banners."
-    else:
-        return "Invalid team selection. Please choose 'Red' or 'Blue'."
+        winning_team_text = " The winning army is dressed in blue armor and banners."
+
+    # Print the original prompt and dynamic values for debugging
+    print("Original Prompt:")
+    print(prompt)
+    print(f"Enemy Color: {enemy_color}")
+    print(f"Winning Team Text: {winning_team_text}")
+
+    prompt = prompt.format(enemy_color=enemy_color, winning_team_text = winning_team_text)
+
+    # Print the formatted prompt for debugging
+    print("\nFormatted Prompt:")
+    print(prompt)
 
     # Append the custom prompt if provided
     if custom_prompt.strip():
