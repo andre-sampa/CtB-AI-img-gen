@@ -36,7 +36,7 @@ def generate_image(prompt, team_color, model_name, height, width, num_inference_
     print("Original Prompt:")
     print(prompt)
     print(f"Enemy Color: {enemy_color}")
-    print(f"Team Color: {team_color}")
+    print(f"Team Color: {team_color.lower()}")
 
     prompt = prompt.format(team_color=team_color.lower(), enemy_color=enemy_color)
 
