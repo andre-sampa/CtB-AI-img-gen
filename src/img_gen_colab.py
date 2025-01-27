@@ -74,7 +74,7 @@ def generate_image(prompt, team_color, model_name, height, width, num_inference_
     except Exception as e:
         return f"An error occurred: {e}"
 
-def save_image(image, model_label, prompt_label, team):
+def save_image(image, model_label, seed, prompt_label, team):
     """
     Save the generated image with a timestamped filename.
 
@@ -88,6 +88,6 @@ def save_image(image, model_label, prompt_label, team):
         str: The filename of the saved image.
     """
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_filename = f"{timestamp}_{model_label.replace(' ', '_').lower()}_{prompt_label.replace(' ', '_').lower()}_{team.lower()}.png"
+    output_filename = f"{timestamp}_{model_label.replace(' ', '_').lower()}_{seed}_{prompt_label.replace(' ', '_').lower()}_{team.lower()}.png"
     image.save(output_filename)
     return output_filename
