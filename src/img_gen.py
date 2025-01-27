@@ -24,7 +24,7 @@ def generate_image(prompt_alias, team_color, model_alias, custom_prompt, height=
         return None, "ERROR: Invalid prompt or model selected."
 
     # Determine the enemy color
-    enemy_color = "blue" if team.lower() == "red" else "red"
+    enemy_color = "blue" if team_color.lower() == "red" else "red"
 
     # if team.lower() == "red":
     #     winning_team_text = " The winning army is dressed in red armor and banners."
