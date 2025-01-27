@@ -70,7 +70,7 @@ def generate_image(prompt_alias, team_color, model_alias, custom_prompt, height=
     except Exception as e:
         return None, f"ERROR: Failed to generate image. Details: {e}"
 
-    return prompt  # For testing purposes, return the formatted prompt
+    #return prompt  # For testing purposes, return the formatted prompt
 
     # Save the image with a timestamped filename
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
