@@ -74,7 +74,7 @@ def generate_image(prompt_alias, team_color, model_alias, custom_prompt, height=
 
     # Save the image with a timestamped filename
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_filename = f"{timestamp}_{model_alias.replace(' ', '_').lower()}_{prompt_alias.replace(' ', '_').lower()}_{team.lower()}.png"
+    output_filename = f"{timestamp}_{model_alias.replace(' ', '_').lower()}_{prompt_alias.replace(' ', '_').lower()}_{team_color.lower()}.png"
     try:
         image.save(output_filename)
     except Exception as e:
