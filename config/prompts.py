@@ -7,7 +7,7 @@ prompts = [
     },
     {
         "alias": "Forest Battle",
-        "text": "A fierce battle between two armies in a dense forest, with knights wielding swords and axes, horses rearing, and the ground covered in mud and blood. The enemy army, dressed in {enemy_color} armor, is locked in brutal combat, with soldiers fighting hand-to-hand amidst the trees. Arrows whiz past, and the sounds of clashing steel echo through the forest. Injured soldiers scream in pain, and the forest is littered with broken weapons and shields. Unreal Engine render style, photorealistic, realistic fantasy style."
+        "text": "A fierce battle between two armies in a dense forest, with knights wielding swords and axes, horses rearing, and the ground covered in mud and blood. The ally army, dressed in red. The enemy army, dressed in blue armor, is locked in brutal combat, with soldiers fighting hand-to-hand amidst the trees. Arrows whiz past, and the sounds of clashing steel echo through the forest. Injured soldiers scream in pain, and the forest is littered with broken weapons and shields. Unreal Engine render style, photorealistic, realistic fantasy style."
     },
     {
         "alias": "Boiling Oil Defense",
