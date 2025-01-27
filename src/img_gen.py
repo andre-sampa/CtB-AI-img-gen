@@ -15,7 +15,7 @@ def generate(prompt_alias, team, model_alias, custom_prompt, height=360, width=6
         return None, f"An error occurred: {e}"
 
 
-def generate_image(prompt_alias, team, model_alias, custom_prompt, height=360, width=640, num_inference_steps=20, guidance_scale=2.0, seed=-1):
+def generate_image(prompt_alias, team, winning_team_text, model_alias, custom_prompt, height=360, width=640, num_inference_steps=20, guidance_scale=2.0, seed=-1):
     # Find the selected prompt and model
     try:
         prompt = next(p for p in prompts if p["alias"] == prompt_alias)["text"]
@@ -25,12 +25,23 @@ def generate_image(prompt_alias, team, model_alias, custom_prompt, height=360, w
 
     # Determine the enemy color
     enemy_color = "blue" if team.lower() == "red" else "red"
-    prompt = prompt.format(enemy_color=enemy_color)
 
     if team.lower() == "red":
-        prompt += " The winning army is dressed in red armor and banners."
+        winning_team_text = " The winning army is dressed in red armor and banners."
     elif team.lower() == "blue":
-        prompt += " The winning army is dressed in blue armor and banners."
+        winning_team_text = " The winning army is dressed in blue armor and banners."
+
+    # Print the original prompt and dynamic values for debugging
+    print("Original Prompt:")
+    print(prompt)
+    print(f"Enemy Color: {enemy_color}")
+    print(f"Winning Team Text: {winning_team_text}")
+
+    prompt = prompt.format(enemy_color=enemy_color, winning_team_text = winning_team_text)
+
+    # Print the formatted prompt for debugging
+    print("\nFormatted Prompt:")
+    print(prompt)
 
     # Append the custom prompt (if provided)
     if custom_prompt and len(custom_prompt.strip()) > 0:
@@ -58,6 +69,8 @@ def generate_image(prompt_alias, team, model_alias, custom_prompt, height=360, w
         )
     except Exception as e:
         return None, f"ERROR: Failed to generate image. Details: {e}"
+
+    return prompt  # For testing purposes, return the formatted prompt
 
     # Save the image with a timestamped filename
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
