@@ -15,7 +15,7 @@ def gradio_interface():
         custom_css = ""  # Or provide default CSS
 
     with gr.Blocks(css=custom_css) as demo:
-        gr.Markdown("# CtB AI Image Generator - Inference version (HF)")
+        gr.Markdown("# ========== CtB AI Image Generator ==========")
         with gr.Row():
             # Set default values for dropdowns
             prompt_dropdown = gr.Dropdown(choices=[p["alias"] for p in prompts], label="Select Prompt", value=prompts[0]["alias"])
