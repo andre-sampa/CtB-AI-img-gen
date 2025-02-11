@@ -4,7 +4,7 @@ from PIL import Image
 import random
 from datetime import datetime
 
-def generate_image(prompt, team_color, model_name, height, width, num_inference_steps, guidance_scale, seed, custom_prompt, api_token, randomize_seed=True):
+def generate_image(prompt, team_color, model_name, width, height, num_inference_steps, guidance_scale, seed, custom_prompt, api_token, randomize_seed=True):
     """
     Generate an image using the Hugging Face Inference API.
 

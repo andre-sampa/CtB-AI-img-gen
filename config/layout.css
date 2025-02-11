@@ -1,0 +1,11 @@
+.row-class {
+    display: flex;
+    align-items: stretch; /* Ensures all children have the same height */
+}
+.row-class > * {
+    flex: 1;
+}
+.output-image img {
+    width: 2500px; /* Force image to fill container width */ 
+    object-fit: cover; /* ACTIVATE FOR IMAGE-FIT CONTAINER */
+}

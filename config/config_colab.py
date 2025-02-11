@@ -1,7 +1,7 @@
 # config_colab.py
 from google.colab import userdata
 from config.prompts import prompts  # Import prompts from prompts.py
-from config.models import models
+from config.models import models, models_modal
 
 # Retrieve the Hugging Face token from Colab secrets
 api_token = userdata.get("HF_TOKEN")

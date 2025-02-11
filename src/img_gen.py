@@ -2,24 +2,36 @@
 import sys
 import os
 import random
-from huggingface_hub import InferenceClient
+from huggingface_hub import InferenceClient, login
 from datetime import datetime
 from config.config import models, prompts, api_token  # Direct import
 
-def generate(prompt_alias, team_color, model_alias, custom_prompt, height=360, width=640, num_inference_steps=20, guidance_scale=2.0, seed=-1):
+def generate_image(
+        prompt_alias, 
+        team_color, 
+        custom_prompt, 
+        model_alias="FLUX.1-dev", 
+        width=640, 
+        height=360, 
+        num_inference_steps=20, 
+        guidance_scale=2.0, 
+        seed=-1):
+    
+    # LOAD CSS
     try:
-        # Generate the image
-        image_path, message = generate_image(prompt_alias, team_color, model_alias, custom_prompt, height, width, num_inference_steps, guidance_scale, seed)
-        return image_path, message
-    except Exception as e:
-        return None, f"An error occurred: {e}"
+        with open("src/aaa.css", "r") as f:
+            custom_css = f.read()
+    except FileNotFoundError:
+        print("Error: aaa.css not found!")
+        custom_css = ""  # Or provide default CSS
 
 
-def generate_image(prompt_alias, team_color, model_alias, custom_prompt, height=360, width=640, num_inference_steps=20, guidance_scale=2.0, seed=-1):
     # Find the selected prompt and model
     try:
         prompt = next(p for p in prompts if p["alias"] == prompt_alias)["text"]
-        model_name = next(m for m in models if m["alias"] == model_alias)["name"]
+        #model_name = next(m for m in models if m["alias"] == model_alias)["name"]
+        model_name = f"black-forest-labs/{model_alias}"
+
     except StopIteration:
         return None, "ERROR: Invalid prompt or model selected."
 
@@ -39,26 +51,38 @@ def generate_image(prompt_alias, team_color, model_alias, custom_prompt, height=
 
     prompt = prompt.format(team_color=team_color.lower(), enemy_color=enemy_color)
 
-    # Print the formatted prompt for debugging
-    print("\nFormatted Prompt:")
-    print(prompt)
-
     # Append the custom prompt (if provided)
     if custom_prompt and len(custom_prompt.strip()) > 0:
         prompt += " " + custom_prompt.strip()
+
+    # Print the formatted prompt for debugging
+    print("\nFormatted Prompt:")
+    print(prompt)
 
     # Randomize the seed if needed
     if seed == -1:
         seed = random.randint(0, 1000000)
 
+    # HF LOGIN 
+    print("Initializing HF TOKEN")
+    print (api_token)
+    # login(token=api_token)
+    # print("model_name:")
+    # print(model_name)
+
+
     # Initialize the InferenceClient
     try:
+        print("-----INITIALIZING INFERENCE-----")
         client = InferenceClient(model_name, token=api_token)
+        print("Inference activated")
     except Exception as e:
         return None, f"ERROR: Failed to initialize InferenceClient. Details: {e}"
 
      #Generate the image
     try:
+        print("-----GENERATING IMAGE-----")
+        print("-----HOLD ON-----")   
         image = client.text_to_image(
             prompt,
             guidance_scale=guidance_scale,
@@ -67,17 +91,21 @@ def generate_image(prompt_alias, team_color, model_alias, custom_prompt, height=
             height=height,
             seed=seed
         )
+        print("-----IMAGE GENERATED SUCCESSFULLY!-----")
     except Exception as e:
         return None, f"ERROR: Failed to generate image. Details: {e}"
 
-    #return prompt  # For testing purposes, return the formatted prompt
-
     # Save the image with a timestamped filename
+    print("-----SAVING-----", image)
+    path = "images"
+    
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_filename = f"{timestamp}_{model_alias.replace(' ', '_').lower()}_{prompt_alias.replace(' ', '_').lower()}_{team_color.lower()}.png"
+    output_filename = f"{path}/{timestamp}_{model_alias.replace(' ', '_').lower()}_{prompt_alias.replace(' ', '_').lower()}_{team_color.lower()}.png"
     try:
         image.save(output_filename)
     except Exception as e:
         return None, f"ERROR: Failed to save image. Details: {e}"
+    print("-----DONE!-----")
+    print("-----CALL THE BANNERS!-----")
 
     return output_filename, "Image generated successfully!"
