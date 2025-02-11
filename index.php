@@ -128,9 +128,9 @@ function getImages($directory) {
         }
     </style>
 </head>
-<body>aa
+<body>
     <div class="gallery-container">
-    <h1>========== CtB-AI-img-gen - Andre Gallery ==========</h1>
+    <h1>========== CtB-AI-img-gen - Image Gallery ==========</h1>
     <div class="gallery">
             <?php
             // Specify your images directory
