@@ -108,4 +108,4 @@ def generate_image(
     print("-----DONE!-----")
     print("-----CALL THE BANNERS!-----")
 
-    return output_filename, "Image generated successfully!"
+    return output_filename, "Image generated successfully! Call the banners!"
