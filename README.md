@@ -1,5 +1,5 @@
 ---
-title: CtB-AI-img-gen-1.0
+title: CtB-AI-img-gen
 emoji: ⚔️
 colorFrom: purple
 colorTo: red
